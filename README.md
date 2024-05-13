@@ -5,14 +5,17 @@ Como Executar
 Certifique-se de ter o Python 3 instalado em seu sistema. Você pode baixá-lo aqui.
 
 Clone este repositório para o seu ambiente local:
+
 bash
 Copiar código
-git clone https://github.com/GabrielVitorSilva/TP1-Aeds3
+git clone https://github.com/seu-usuario/nome-do-repositorio.git
 Navegue até o diretório do projeto:
+
 arduino
 Copiar código
 cd nome-do-repositorio
 Execute o script Python main.py:
+
 css
 Copiar código
 python3 main.py
