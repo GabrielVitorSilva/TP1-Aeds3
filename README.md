@@ -7,7 +7,7 @@ Certifique-se de ter o Python 3 instalado em seu sistema. Você pode baixá-lo a
 Clone este repositório para o seu ambiente local:
 bash
 Copiar código
-git clone https://github.com/seu-usuario/nome-do-repositorio.git
+git clone https://github.com/GabrielVitorSilva/TP1-Aeds3
 Navegue até o diretório do projeto:
 arduino
 Copiar código
