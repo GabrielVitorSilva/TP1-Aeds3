@@ -1,180 +1,139 @@
-import random  # Importa o módulo random para geração de números aleatórios
-import time    # Importa o módulo time para medição do tempo de execução
+import random
+import string
+import time
 
-# Classe que define a estrutura de um registro
-class Registro:
+class NoArvore:
     def __init__(self, chave, dado1, dado2):
-        self.chave = chave  # Chave do registro
-        self.dado1 = dado1  # Primeiro dado do registro (inteiro)
-        self.dado2 = dado2  # Segundo dado do registro (string)
+        self.chave = chave
+        self.dado1 = dado1
+        self.dado2 = dado2
+        self.esquerda = None
+        self.direita = None
 
-# Classe que define a estrutura de um nó de árvore binária
-class No:
-    def __init__(self, registro):
-        self.registro = registro  # Registro armazenado no nó
-        self.esquerda = None      # Referência para o nó filho esquerdo
-        self.direita = None       # Referência para o nó filho direito
-
-# Classe que define a estrutura de uma árvore binária
-class ArvoreBinaria:
+class ArvoreBuscaBinaria:
     def __init__(self):
-        self.raiz = None  # Inicializa a raiz da árvore como vazia
+        self.raiz = None
 
-    # Método para inserir um registro na árvore
-    def inserir(self, registro):
-        if not self.raiz:  # Se a árvore estiver vazia, insere o registro como raiz
-            self.raiz = No(registro)
+    def inserir(self, chave, dado1, dado2):
+        novo_no = NoArvore(chave, dado1, dado2)
+        if self.raiz is None:
+            self.raiz = novo_no
         else:
-            self._inserir_recursivo(registro, self.raiz)  # Senão, insere de forma recursiva
+            atual = self.raiz
+            while True:
+                if chave < atual.chave:
+                    if atual.esquerda is None:
+                        atual.esquerda = novo_no
+                        break
+                    atual = atual.esquerda
+                elif chave > atual.chave:
+                    if atual.direita is None:
+                        atual.direita = novo_no
+                        break
+                    atual = atual.direita
 
-    # Método privado para inserir um registro recursivamente na árvore
-    def _inserir_recursivo(self, registro, no):
-        if registro.chave < no.registro.chave:  # Se a chave do registro for menor que a do nó atual
-            if not no.esquerda:                 # Se não há nó filho esquerdo, insere o registro aqui
-                no.esquerda = No(registro)
+    def buscar(self, chave):
+        tempo_inicio = time.time()
+        atual = self.raiz
+        while atual is not None:
+            if chave == atual.chave:
+                tempo_fim = time.time()
+                return atual, tempo_fim - tempo_inicio
+            elif chave < atual.chave:
+                atual = atual.esquerda
             else:
-                self._inserir_recursivo(registro, no.esquerda)  # Senão, insere recursivamente no filho esquerdo
-        elif registro.chave > no.registro.chave:  # Se a chave do registro for maior que a do nó atual
-            if not no.direita:                    # Se não há nó filho direito, insere o registro aqui
-                no.direita = No(registro)
-            else:
-                self._inserir_recursivo(registro, no.direita)  # Senão, insere recursivamente no filho direito
+                atual = atual.direita
+        tempo_fim = time.time()
+        return None, tempo_fim - tempo_inicio
 
-# Classe que define a estrutura de uma árvore AVL
-class AVL:
-    def __init__(self):
-        self.raiz = None  # Inicializa a raiz da árvore AVL como vazia
+class BuscarNumeros:
+    def __init__(self, arvore, num_buscas, num_entradas):
+        self.arvore = arvore
+        self.num_buscas = num_buscas
+        self.num_entradas = num_entradas
 
-    # Método para inserir um registro na árvore AVL
-    def inserir(self, registro):
-        self.raiz = self._inserir_recursivo(registro, self.raiz)
+    def buscar_numeros_existem(self):
+        resultados = []
+        for _ in range(self.num_buscas):
+            chave = random.choice(range(1, self.num_entradas + 1))
+            resultado, tempo = self.arvore.buscar(chave)
+            resultados.append((chave, resultado, tempo))
+        return resultados
 
-    # Método privado para inserir um registro recursivamente na árvore AVL
-    def _altura(self, no):
-        if not no:
-            return -1
-        return no.altura
+class BuscarNumerosInexistentes:
+    def __init__(self, arvore, dados, num_buscas, num_entradas):
+        self.arvore = arvore
+        self.dados = dados
+        self.num_buscas = num_buscas
+        self.num_entradas = num_entradas
 
-    # Métodos de rotação da árvore AVL
-    def _rotacao_direita(self, no):
-        nova_raiz = no.esquerda
-        no.esquerda = nova_raiz.direita
-        nova_raiz.direita = no
-        no.altura = max(self._altura(no.esquerda), self._altura(no.direita)) + 1
-        nova_raiz.altura = max(self._altura(nova_raiz.esquerda), no.altura) + 1
-        return nova_raiz
+    def buscar_numeros_nao_existem(self):
+        numeros_unicos = set(entrada[0] for entrada in self.dados)
+        numeros_nao_encontrados = []
 
-    def _rotacao_esquerda(self, no):
-        nova_raiz = no.direita
-        no.direita = nova_raiz.esquerda
-        nova_raiz.esquerda = no
-        no.altura = max(self._altura(no.esquerda), self._altura(no.direita)) + 1
-        nova_raiz.altura = max(self._altura(nova_raiz.direita), no.altura) + 1
-        return nova_raiz
+        while len(numeros_nao_encontrados) < self.num_buscas:
+            num_aleatorio = random.randint(1, self.num_entradas * 2)  
+            if num_aleatorio not in numeros_unicos:
+                resultado, tempo = self.arvore.buscar(num_aleatorio)
+                if not resultado:
+                    numeros_nao_encontrados.append((num_aleatorio, tempo))
+        return numeros_nao_encontrados
 
-    # Método de balanceamento da árvore AVL
-    def _balanceamento(self, no):
-        if not no:
-            return no
-        if self._altura(no.esquerda) - self._altura(no.direita) > 1:
-            if self._altura(no.esquerda.esquerda) >= self._altura(no.esquerda.direita):
-                no = self._rotacao_direita(no)
-            else:
-                no.esquerda = self._rotacao_esquerda(no.esquerda)
-                no = self._rotacao_direita(no)
-        elif self._altura(no.direita) - self._altura(no.esquerda) > 1:
-            if self._altura(no.direita.direita) >= self._altura(no.direita.esquerda):
-                no = self._rotacao_esquerda(no)
-            else:
-                no.direita = self._rotacao_direita(no.direita)
-                no = self._rotacao_esquerda(no)
-        return no
-
-    # Método privado para inserir um registro recursivamente na árvore AVL
-    def _inserir_recursivo(self, registro, no):
-        if not no:
-            return No(registro)
-        if registro.chave < no.registro.chave:
-            no.esquerda = self._inserir_recursivo(registro, no.esquerda)
-        elif registro.chave > no.registro.chave:
-            no.direita = self._inserir_recursivo(registro, no.direita)
-        else:
-            return no
-        no.altura = max(self._altura(no.esquerda), self._altura(no.direita)) + 1
-        return self._balanceamento(no)
-
-# Função para gerar um registro aleatório
-def gerar_registro(chave):
-    dado1 = random.randint(1, 100)  # Gera um número inteiro aleatório
-    dado2 = ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', k=10))  # Gera uma string aleatória de 10 caracteres
-    return Registro(chave, dado1, dado2)  # Retorna o registro com os dados gerados
-
-# Função para gerar um arquivo de dados com registros aleatórios
-def gerar_arquivo(tamanho, ordenado=True):
-    registros = [gerar_registro(chave) for chave in range(1, tamanho + 1)]  # Gera registros para o tamanho especificado
+def gerar_dados(num_entradas, ordenado=False):
+    dados = []
+    chaves = list(range(1, num_entradas + 1))
     if not ordenado:
-        random.shuffle(registros)  # Embaralha os registros se não estiverem ordenados
-    with open(f'dados_{tamanho}_{"ordenado" if ordenado else "nao_ordenado"}.txt', 'w') as arquivo:
-        for registro in registros:
-            arquivo.write(f"{registro.chave},{registro.dado1},{registro.dado2}\n")  # Escreve os registros no arquivo
+        random.shuffle(chaves)
 
-# Função para carregar registros de um arquivo de dados
-def carregar_arquivo(nome_arquivo):
-    registros = []
-    with open(nome_arquivo, 'r') as arquivo:
-        for linha in arquivo:
-            chave, dado1, dado2 = linha.strip().split(',')  # Separa os dados da linha
-            registros.append(Registro(int(chave), int(dado1), dado2))  # Adiciona o registro à lista
-    return registros
-
-# Funções de busca (não incluídas aqui para brevidade)
-
-# Função para calcular o desempenho das buscas
-def calcular_desempenho(busca, estrutura, chaves, existentes=True):
-    tempos = []   # Lista para armazenar os tempos de execução das buscas
-    comps = []    # Lista para armazenar o número de comparações feitas nas buscas
     for chave in chaves:
-        inicio = time.time()  # Registra o tempo inicial
-        resultado = busca(estrutura, chave)  # Realiza a busca
-        fim = time.time()     # Registra o tempo final
-        tempos.append(fim - inicio)  # Calcula o tempo de execução da busca e adiciona à lista
-        comps.append(1 if resultado else 0)  # Adiciona 1 se a busca for bem-sucedida, 0 caso contrário
-    tempo_medio = sum(tempos) / len(tempos)  # Calcula o tempo médio de execução das buscas
-    comps_medio = sum(comps) / len(comps)    # Calcula o número médio de comparações feitas nas buscas
-    return comps_medio, tempo_medio  # Retorna o número médio de comparações e o tempo médio de execução
+        dado1 = random.randint(1, 100)
+        dado2 = ''.join(random.choice(string.ascii_letters) for _ in range(10))
+        dados.append((chave, dado1, dado2))
+    return dados
 
-# Gerar arquivos de dados para diferentes tamanhos e tipos (ordenado e não ordenado)
-tamanhos = [100, 500, 1000, 5000, 10000]  # Lista dos tamanhos dos arquivos
-for tamanho in tamanhos:
-    gerar_arquivo(tamanho, ordenado=True)   # Gera arquivo ordenado
-    gerar_arquivo(tamanho, ordenado=False)  # Gera arquivo não ordenado
+def criar_arquivo_de_dados(dados, nome_arquivo):
+    with open(nome_arquivo, 'w') as arquivo:
+        for entrada in dados:
+            arquivo.write(f"{entrada[0]} {entrada[1]} {entrada[2]}\n")
 
-# Carregar arquivos e realizar buscas
-chaves_busca = [random.randint(1, 1000) for _ in range(15)]            # Gera 15 chaves de busca aleatórias
-chaves_nao_presentes = [random.randint(1001, 2000) for _ in range(15)]  # Gera 15 chaves que não estão nos registros
-resultados = []  # Lista para armazenar os resultados das análises de desempenho
+def principal():
+    num_entradas = int(input("Quantos números na árvore: "))
+    quantidade_buscas = int(input("Quantidade de números para buscar: "))
+    opcao_ordenado = input("Deseja ordenar os números? (S/N): ").strip().lower()
+    dados_ordenados = opcao_ordenado == 's'
+    dados = gerar_dados(num_entradas, ordenado=dados_ordenados)
+    criar_arquivo_de_dados(dados, 'dados.txt')
 
-for tamanho in tamanhos:
-    for ordenado in [True, False]:
-        arquivo = f'dados_{tamanho}_{"ordenado" if ordenado else "nao_ordenado"}.txt'  # Determina o nome do arquivo a ser carregado
-        registros = carregar_arquivo(arquivo)  # Carrega os registros do arquivo
-        estrutura_sequencial = registros       # Estrutura sequencial é simplesmente uma lista de registros
-        arvore_binaria = ArvoreBinaria()       # Inicializa uma árvore binária vazia
-        avl = AVL()                            # Inicializa uma árvore AVL vazia
-        for registro in registros:             # Insere os registros nas estruturas de dados
-            arvore_binaria.inserir(registro)   # Insere na árvore binária
-            avl.inserir(registro)              # Insere na árvore AVL
-        # Calcula o desempenho das buscas para cada tipo de estrutura e tipo de busca (presente e não presente)
-        comps_seq_presente, tempo_seq_presente = calcular_desempenho(busca_sequencial, estrutura_sequencial, chaves_busca)
-        comps_seq_nao_presente, tempo_seq_nao_presente = calcular_desempenho(busca_sequencial, estrutura_sequencial, chaves_nao_presentes, existentes=False)
-        comps_bin_presente, tempo_bin_presente = calcular_desempenho(busca_arvore_binaria, arvore_binaria, chaves_busca)
-        comps_bin_nao_presente, tempo_bin_nao_presente = calcular_desempenho(busca_arvore_binaria, arvore_binaria, chaves_nao_presentes, existentes=False)
-        comps_avl_presente, tempo_avl_presente = calcular_desempenho(busca_avl, avl, chaves_busca)
-        comps_avl_nao_presente, tempo_avl_nao_presente = calcular_desempenho(busca_avl, avl, chaves_nao_presentes, existentes=False)
-        # Adiciona os resultados à lista de resultados
-        resultados.append((tamanho, ordenado, comps_seq_presente, tempo_seq_presente, comps_seq_nao_presente, tempo_seq_nao_presente, comps_bin_presente, tempo_bin_presente, comps_bin_nao_presente, tempo_bin_nao_presente, comps_avl_presente, tempo_avl_presente, comps_avl_nao_presente, tempo_avl_nao_presente))
+    arvore = ArvoreBuscaBinaria()
+    for entrada in dados:
+        arvore.inserir(*entrada)
 
-# Exibir resultados
-print("Tam. Ordenado CompSeqP TempoSeqP CompSeqNP TempoSeqNP CompBinP TempoBinP CompBinNP TempoBinNP CompAVLP TempoAVLP CompAVLNP TempoAVLNP")
-for resultado in resultados:
-    print(*resultado)
+    busca_existente = BuscarNumeros(arvore, quantidade_buscas, num_entradas)
+    resultados_existente = busca_existente.buscar_numeros_existem()
+
+    print("Buscando os números existentes:")
+    for chave, resultado, tempo in resultados_existente:
+        if resultado:
+            print(f"Número: {chave}, encontrado, Tempo médio de busca: {tempo:.6f} segundos")
+        else:
+            print(f"Número: {chave}, não encontrado, Tempo médio de busca: {tempo:.6f} segundos")
+
+    input("Pressione Enter para continuar e buscar números inexistentes...")
+    print()
+    
+    busca_nao_existente = BuscarNumerosInexistentes(arvore, dados, quantidade_buscas, num_entradas)
+    resultados_nao_existente = busca_nao_existente.buscar_numeros_nao_existem()
+
+    print("\nBuscando números inexistentes:")
+    for chave, tempo in resultados_nao_existente:
+        print(f"Número: {chave}, não encontrado, Tempo médio de busca: {tempo:.6f} segundos")
+
+    tempo_total_existente = sum(tempo for _, _, tempo in resultados_existente)
+    tempo_total_nao_existente = sum(tempo for _, tempo in resultados_nao_existente)
+
+    print()
+    print(f"Tempo total de busca para números existentes: {tempo_total_existente:.6f} segundos")
+    print(f"Tempo total de busca para números inexistentes: {tempo_total_nao_existente:.6f} segundos")
+
+if __name__ == "__main__":
+    principal()
