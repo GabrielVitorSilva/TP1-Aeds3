@@ -2,7 +2,7 @@ import random
 import string
 import time
 
-class NoArvore:
+class NoArvoreBinaria:
     def __init__(self, chave, dado1, dado2):
         self.chave = chave
         self.dado1 = dado1
@@ -10,12 +10,12 @@ class NoArvore:
         self.esquerda = None
         self.direita = None
 
-class ArvoreBuscaBinaria:
+class ArvoreBinariaBusca:
     def __init__(self):
         self.raiz = None
 
     def inserir(self, chave, dado1, dado2):
-        novo_no = NoArvore(chave, dado1, dado2)
+        novo_no = NoArvoreBinaria(chave, dado1, dado2)
         if self.raiz is None:
             self.raiz = novo_no
         else:
@@ -46,13 +46,13 @@ class ArvoreBuscaBinaria:
         tempo_fim = time.time()
         return None, tempo_fim - tempo_inicio
 
-class BuscarNumeros:
+class BuscaExistentes:
     def __init__(self, arvore, num_buscas, num_entradas):
         self.arvore = arvore
         self.num_buscas = num_buscas
         self.num_entradas = num_entradas
 
-    def buscar_numeros_existem(self):
+    def buscar_numeros_existentes(self):
         resultados = []
         for _ in range(self.num_buscas):
             chave = random.choice(range(1, self.num_entradas + 1))
@@ -60,19 +60,19 @@ class BuscarNumeros:
             resultados.append((chave, resultado, tempo))
         return resultados
 
-class BuscarNumerosInexistentes:
+class BuscaInexistentes:
     def __init__(self, arvore, dados, num_buscas, num_entradas):
         self.arvore = arvore
         self.dados = dados
         self.num_buscas = num_buscas
         self.num_entradas = num_entradas
 
-    def buscar_numeros_nao_existem(self):
-        numeros_unicos = set(entrada[0] for entrada in self.dados)
+    def buscar_numeros_inexistentes(self):
+        numeros_unicos = set(entry[0] for entry in self.dados)
         numeros_nao_encontrados = []
 
         while len(numeros_nao_encontrados) < self.num_buscas:
-            num_aleatorio = random.randint(1, self.num_entradas * 2)  
+            num_aleatorio = random.randint(1, self.num_entradas * 2)
             if num_aleatorio not in numeros_unicos:
                 resultado, tempo = self.arvore.buscar(num_aleatorio)
                 if not resultado:
@@ -96,44 +96,44 @@ def criar_arquivo_de_dados(dados, nome_arquivo):
         for entrada in dados:
             arquivo.write(f"{entrada[0]} {entrada[1]} {entrada[2]}\n")
 
-def principal():
-    num_entradas = int(input("Quantos números na árvore: "))
-    quantidade_buscas = int(input("Quantidade de números para buscar: "))
-    opcao_ordenado = input("Deseja ordenar os números? (S/N): ").strip().lower()
+def main():
+    num_entradas = int(input("Número de entradas: "))
+    quantidade_buscas = int(input("Quantidade de buscas aleatórias: "))
+    opcao_ordenado = input("Entradas ordenadas? (S/N): ").strip().lower()
     dados_ordenados = opcao_ordenado == 's'
     dados = gerar_dados(num_entradas, ordenado=dados_ordenados)
     criar_arquivo_de_dados(dados, 'dados.txt')
 
-    arvore = ArvoreBuscaBinaria()
+    arvore = ArvoreBinariaBusca()
     for entrada in dados:
         arvore.inserir(*entrada)
 
-    busca_existente = BuscarNumeros(arvore, quantidade_buscas, num_entradas)
-    resultados_existente = busca_existente.buscar_numeros_existem()
+    busca_existente = BuscaExistentes(arvore, quantidade_buscas, num_entradas)
+    resultados_existente = busca_existente.buscar_numeros_existentes()
 
-    print("Buscando os números existentes:")
+    print("Busca pelos números existentes:")
     for chave, resultado, tempo in resultados_existente:
         if resultado:
-            print(f"Número: {chave}, encontrado, Tempo médio de busca: {tempo:.6f} segundos")
+            print(f"Chave: {chave}, encontrada, Tempo médio de busca: {tempo:.6f} segundos")
         else:
-            print(f"Número: {chave}, não encontrado, Tempo médio de busca: {tempo:.6f} segundos")
+            print(f"Chave: {chave}, não encontrada, Tempo médio de busca: {tempo:.6f} segundos")
 
     input("Pressione Enter para continuar e buscar números inexistentes...")
     print()
     
-    busca_nao_existente = BuscarNumerosInexistentes(arvore, dados, quantidade_buscas, num_entradas)
-    resultados_nao_existente = busca_nao_existente.buscar_numeros_nao_existem()
+    busca_nao_existente = BuscaInexistentes(arvore, dados, quantidade_buscas, num_entradas)
+    resultados_nao_existente = busca_nao_existente.buscar_numeros_inexistentes()
 
-    print("\nBuscando números inexistentes:")
+    print("\nBusca pelos números inexistentes:")
     for chave, tempo in resultados_nao_existente:
-        print(f"Número: {chave}, não encontrado, Tempo médio de busca: {tempo:.6f} segundos")
+        print(f"Chave: {chave}, não encontrada, Tempo médio de busca: {tempo:.6f} segundos")
 
     tempo_total_existente = sum(tempo for _, _, tempo in resultados_existente)
     tempo_total_nao_existente = sum(tempo for _, tempo in resultados_nao_existente)
 
     print()
-    print(f"Tempo total de busca para números existentes: {tempo_total_existente:.6f} segundos")
-    print(f"Tempo total de busca para números inexistentes: {tempo_total_nao_existente:.6f} segundos")
+    print(f"Tempo total das buscas pelos números existentes: {tempo_total_existente:.6f} segundos")
+    print(f"Tempo total das buscas pelos números inexistentes: {tempo_total_nao_existente:.6f} segundos")
 
 if __name__ == "__main__":
-    principal()
+    main()
