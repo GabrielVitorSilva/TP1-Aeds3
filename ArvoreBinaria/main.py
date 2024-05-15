@@ -35,16 +35,18 @@ class ArvoreBinariaBusca:
     def buscar(self, chave):
         tempo_inicio = time.time()
         atual = self.raiz
+        comparacoes = 0  # Inicializa o contador de comparações
         while atual is not None:
+            comparacoes += 1  # Incrementa o contador a cada comparação
             if chave == atual.chave:
                 tempo_fim = time.time()
-                return atual, tempo_fim - tempo_inicio
+                return atual, tempo_fim - tempo_inicio, comparacoes  # Retorna o nó, tempo e número de comparações
             elif chave < atual.chave:
                 atual = atual.esquerda
             else:
                 atual = atual.direita
         tempo_fim = time.time()
-        return None, tempo_fim - tempo_inicio
+        return None, tempo_fim - tempo_inicio, comparacoes  # Retorna None se a chave não for encontrada
 
 class BuscaExistentes:
     def __init__(self, arvore, num_buscas, num_entradas):
@@ -56,8 +58,8 @@ class BuscaExistentes:
         resultados = []
         for _ in range(self.num_buscas):
             chave = random.choice(range(1, self.num_entradas + 1))
-            resultado, tempo = self.arvore.buscar(chave)
-            resultados.append((chave, resultado, tempo))
+            resultado, tempo, comparacoes = self.arvore.buscar(chave)
+            resultados.append((chave, resultado, tempo, comparacoes))  # Adiciona o número de comparações aos resultados
         return resultados
 
 class BuscaInexistentes:
@@ -74,9 +76,9 @@ class BuscaInexistentes:
         while len(numeros_nao_encontrados) < self.num_buscas:
             num_aleatorio = random.randint(1, self.num_entradas * 2)
             if num_aleatorio not in numeros_unicos:
-                resultado, tempo = self.arvore.buscar(num_aleatorio)
+                resultado, tempo, comparacoes = self.arvore.buscar(num_aleatorio)
                 if not resultado:
-                    numeros_nao_encontrados.append((num_aleatorio, tempo))
+                    numeros_nao_encontrados.append((num_aleatorio, tempo, comparacoes))  # Adiciona o número de comparações aos resultados
         return numeros_nao_encontrados
 
 def gerar_dados(num_entradas, ordenado=False):
@@ -112,11 +114,11 @@ def main():
     resultados_existente = busca_existente.buscar_numeros_existentes()
 
     print("Busca pelos números existentes:")
-    for chave, resultado, tempo in resultados_existente:
+    for chave, resultado, tempo, comparacoes in resultados_existente:
         if resultado:
-            print(f"Chave: {chave}, encontrada, Tempo médio de busca: {tempo:.6f} segundos")
+            print(f"Chave: {chave}, encontrada, Tempo médio de busca: {tempo:.6f} segundos, Comparações: {comparacoes}")
         else:
-            print(f"Chave: {chave}, não encontrada, Tempo médio de busca: {tempo:.6f} segundos")
+            print(f"Chave: {chave}, não encontrada, Tempo médio de busca: {tempo:.6f} segundos, Comparações: {comparacoes}")
 
     input("Pressione Enter para continuar e buscar números inexistentes...")
     print()
@@ -125,11 +127,11 @@ def main():
     resultados_nao_existente = busca_nao_existente.buscar_numeros_inexistentes()
 
     print("\nBusca pelos números inexistentes:")
-    for chave, tempo in resultados_nao_existente:
-        print(f"Chave: {chave}, não encontrada, Tempo médio de busca: {tempo:.6f} segundos")
+    for chave, tempo, comparacoes in resultados_nao_existente:
+        print(f"Chave: {chave}, não encontrada, Tempo médio de busca: {tempo:.6f} segundos, Comparações: {comparacoes}")
 
-    tempo_total_existente = sum(tempo for _, _, tempo in resultados_existente)
-    tempo_total_nao_existente = sum(tempo for _, tempo in resultados_nao_existente)
+    tempo_total_existente = sum(tempo for _, _, tempo, _ in resultados_existente)
+    tempo_total_nao_existente = sum(tempo for _, tempo, _ in resultados_nao_existente)
 
     print()
     print(f"Tempo total das buscas pelos números existentes: {tempo_total_existente:.6f} segundos")

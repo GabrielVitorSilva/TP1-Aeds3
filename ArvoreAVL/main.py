@@ -11,6 +11,7 @@ class NoAVL:
         self.esquerda = None     # Filho à esquerda
         self.direita = None      # Filho à direita
         self.altura = 1          # Altura do nó (inicializada como 1)
+        self.comparacoes = 0     # Contador de comparações
 
 # Função auxiliar para obter a altura de um nó.
 def obter_altura(no):
@@ -68,6 +69,8 @@ def inserir(raiz, chave, dado1, dado2):
 
     raiz.altura = 1 + max(obter_altura(raiz.esquerda), obter_altura(raiz.direita))
 
+    raiz.comparacoes += 1  # Incrementa o contador de comparações
+
     balanceamento = obter_fator_balanceamento(raiz)
 
     # Casos de desequilíbrio
@@ -104,7 +107,8 @@ class ArvoreAVL:
 
     def _buscar(self, no, chave):
         if no is None or no.chave == chave:
-            return no, 0
+            return no, no.comparacoes if no else 0
+        no.comparacoes += 1  # Incrementa o contador de comparações
         if chave < no.chave:
             return self._buscar(no.esquerda, chave)
         return self._buscar(no.direita, chave)
@@ -122,9 +126,9 @@ class BuscadorChavesExistentes:
             resultado, tempo_busca = self.arvore.buscar(chave)
             tempo_total += tempo_busca
             if resultado:
-                resultados.append(f"Chave: {chave}, encontrada, Tempo médio de pesquisa: {tempo_busca:.6f} segundos")
+                resultados.append(f"Chave: {chave}, encontrada, Tempo médio de pesquisa: {tempo_busca:.6f} segundos, Comparacoes: {resultado.comparacoes}")
             else:
-                resultados.append(f"Chave: {chave}, não encontrada, Tempo médio de pesquisa: {tempo_busca:.6f} segundos")
+                resultados.append(f"Chave: {chave}, não encontrada, Tempo médio de pesquisa: {tempo_busca:.6f} segundos, Comparacoes: {resultado.comparacoes if resultado else 0}")
 
         return resultados, tempo_total
 
@@ -142,9 +146,9 @@ class BuscadorChavesNaoExistentes:
             resultado, tempo_busca = self.arvore.buscar(chave)
             tempo_total += tempo_busca
             if resultado:
-                resultados.append(f"Chave: {chave}, encontrada, Tempo médio de pesquisa: {tempo_busca:.6f} segundos")
+                resultados.append(f"Chave: {chave}, encontrada, Tempo médio de pesquisa: {tempo_busca:.6f} segundos, Comparacoes: {resultado.comparacoes}")
             else:
-                resultados.append(f"Chave: {chave}, não encontrada, Tempo médio de pesquisa: {tempo_busca:.6f} segundos")
+                resultados.append(f"Chave: {chave}, não encontrada, Tempo médio de pesquisa: {tempo_busca:.6f} segundos, Comparacoes: {resultado.comparacoes if resultado else 0}")
 
         return resultados, tempo_total
 

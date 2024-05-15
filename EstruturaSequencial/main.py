@@ -14,6 +14,7 @@ class No:
 class ArvoreSequencial:
     def __init__(self):
         self.raiz = None
+        self.comparacoes = 0  # Adicionando contador de comparações
 
     # Método para inserir um novo nó na lista encadeada.
     def inserir(self, chave, dado1, dado2):
@@ -29,8 +30,10 @@ class ArvoreSequencial:
     # Método para buscar uma chave na lista encadeada e retornar o tempo gasto na busca.
     def buscar(self, chave):
         atual = self.raiz
+        self.comparacoes = 0  # Reiniciando o contador de comparações
         tempo_inicial = time.time()
         while atual:
+            self.comparacoes += 1  # Incrementando o contador a cada comparação
             if atual.chave == chave:
                 tempo_final = time.time()
                 return atual, tempo_final - tempo_inicial
@@ -95,7 +98,7 @@ def main_sequencial():
     num_buscas = int(input("Quantidade de chaves aleatórias a buscar: "))
     ordenados_opcao = input("Chaves ordenadas? (S/N): ").strip().lower()
     dados_ordenados = ordenados_opcao == 's'
-    
+
     dados = gerar_dados_sequencial(num_registros, ordenados=dados_ordenados)
     criar_arquivo_de_dados_sequencial(dados, 'dados_sequencial.txt')
 
@@ -109,9 +112,9 @@ def main_sequencial():
     print("Busca pelos números que existem:")
     for chave, resultado, tempo in resultados_existente:
         if resultado:
-            print(f"Chave: {chave}, encontrada, Tempo de pesquisa: {tempo:.6f} segundos")
+            print(f"Chave: {chave}, encontrada, Tempo de pesquisa: {tempo:.6f} segundos, Comparacoes: {arvore.comparacoes}")
         else:
-            print(f"Chave: {chave}, não encontrada, Tempo de pesquisa: {tempo:.6f} segundos")
+            print(f"Chave: {chave}, não encontrada, Tempo de pesquisa: {tempo:.6f} segundos, Comparacoes: {arvore.comparacoes}")
 
     input("Pressione Enter para continuar e buscar números que não existem...")
     print()
@@ -121,7 +124,7 @@ def main_sequencial():
 
     print("\nBusca pelos números que não existem:")
     for chave, tempo in resultados_nao_existente:
-        print(f"Chave: {chave}, não encontrada, Tempo de pesquisa: {tempo:.6f} segundos")
+        print(f"Chave: {chave}, não encontrada, Tempo de pesquisa: {tempo:.6f} segundos, Comparacoes: {arvore.comparacoes}")
 
     tempo_total_existente = sum(tempo for _, _, tempo in resultados_existente)
     tempo_total_nao_existente = sum(tempo for _, tempo in resultados_nao_existente)
